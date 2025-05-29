@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login or Register</title>
+</head>
+<body>
+    <h1>Welcome</h1>
+
+    <!-- Форма за вход -->
+    <div id="loginSection">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <input type="text" name="username" placeholder="Username" required />
+            <input type="password" name="password" placeholder="Password" required />
+            <button type="submit">Login</button>
+        </form>
+        <button id="switchToRegister">Switch to Register</button>
+    </div>
+
+    <!-- Форма за регистрация (скрита по подразбиране) -->
+    <div id="registerSection" style="display: none;">
+        <h2>Register</h2>
+        <form id="registerForm">
+            <input type="text" name="username" placeholder="Username" required />
+            <input type="password" name="password" placeholder="Password" required />
+            <button type="submit">Register</button>
+        </form>
+        <button id="switchToLogin">Switch to Login</button>
+    </div>
+
+
+    
+    <script>
+        // Превключване между форми
+        document.getElementById('switchToRegister').addEventListener('click', () => {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('registerSection').style.display = 'block';
+        });
+
+        document.getElementById('switchToLogin').addEventListener('click', () => {
+            document.getElementById('registerSection').style.display = 'none';
+            document.getElementById('loginSection').style.display = 'block';
+        });
+
+        // Обработване на логин форма
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = e.target.username.value;
+            const password = e.target.password.value;
+
+            try {
+                const res = await fetch('/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                if (res.ok) {
+                    // Пренасочване при успешен логин
+                    window.location.href = '/userpage.html';
+                } else {
+                    const data = await res.json();
+                    alert(data.error || 'Login failed.');
+                }
+            } catch (err) {
+                console.error('Error during login:', err);
+                alert('An error occurred during login.');
+            }
+        });
+
+        // Обработване на регистрационна форма
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = e.target.username.value;
+            const password = e.target.password.value;
+
+            try {
+                const res = await fetch('/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    alert(data.message || 'Registration successful.');
+                    document.getElementById('switchToLogin').click(); // Превключване към логин форма
+                } else {
+                    alert(data.error || 'Registration failed.');
+                }
+            } catch (err) {
+                console.error('Error during registration:', err);
+                alert('An error occurred during registration.');
+            }
+        });
+    </script>
+</body>
+</html>

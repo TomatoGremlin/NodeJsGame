@@ -1,0 +1,3 @@
+player:$2b$10$CFIVHxjUDoarYMdJ32hK/.EtP9sVaxwvUQT80gzLOuvdvFRcZ2GXy
+mario:$2b$10$gBvbtIm1sqItzih52ygE8OCFK5Sxjv/RN7E3MaUV5QR2VYjUGpqlG
+luigi:$2b$10$Ac.FViO8k9Q4MThvYL5L/O66UtMfUmv9Wi71wieRGLVeHu.0tmp/O
