@@ -9,7 +9,6 @@ const edgeCollisionSound = document.getElementById('edgeCollisionSound');
 const newClientSound = document.getElementById('newClientSound');
 
 
-// Настройки на канваса
 function resizeCanvas() {
     canvas.width = 500;
     canvas.height = 500;
@@ -20,15 +19,12 @@ function resizeCanvas() {
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
-// WebSocket променливи
 let socket;
 let isConnected = false;
 
-// Данни за топчета
 let balls = [];
 let clientId = null;
 
-// Генериране на случаен цвят
 function getRandomColor() {
     const letters = '0123456789ABCDEF';
     let color = '#';
@@ -38,7 +34,6 @@ function getRandomColor() {
     return color;
 }
 
-// Рисуване на топчета
 function drawBalls() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -52,55 +47,44 @@ function drawBalls() {
 }
 
 document.addEventListener('keydown', (e) => {
-    // Проверка дали връзката е активна и дали имаме clientId
     if (!isConnected || clientId === null) return;
 
-    // Намерете топчето на клиента по clientId
-    const ball = balls.find(b => Number(b.clientId) === Number(clientId)); // Преобразуваме към число за коректно сравнение
+    const ball = balls.find(b => Number(b.clientId) === Number(clientId)); 
     if (!ball) return;
 
-    // Преместване на топката според натиснатата стрелка
     switch (e.key) {
         case 'ArrowUp':
-            if (ball.y - ball.radius > 0) ball.y -= 5; // Местим нагоре
+            if (ball.y - ball.radius > 0) ball.y -= 5; 
             break;
         case 'ArrowDown':
-            if (ball.y + ball.radius < canvas.height) ball.y += 5; // Местим надолу
+            if (ball.y + ball.radius < canvas.height) ball.y += 5; 
             break;
         case 'ArrowLeft':
-            if (ball.x - ball.radius > 0) ball.x -= 5; // Местим наляво
+            if (ball.x - ball.radius > 0) ball.x -= 5; 
             break;
         case 'ArrowRight':
-            if (ball.x + ball.radius < canvas.width) ball.x += 5; // Местим надясно
+            if (ball.x + ball.radius < canvas.width) ball.x += 5; 
             break;
     }
 
-    // Проверка за удар в границите на канваса
     if (ball.x - ball.radius <= 0 || ball.x + ball.radius >= canvas.width ||
         ball.y - ball.radius <= 0 || ball.y + ball.radius >= canvas.height) {
-        // Удар в някоя граница на canvasa
         edgeCollisionSound.play();
     }
 
-    // Стъпка 1: Намерете топката, чийто clientId съвпада с този на местещия клиент
-    const ballIndex = balls.findIndex((ball) => Number(ball.clientId) === Number(clientId)); // Преобразуваме към число за коректно сравнение
+    const ballIndex = balls.findIndex((ball) => Number(ball.clientId) === Number(clientId)); 
 
-    // Стъпка 2: Ако топката е намерена в масива (индексът не е -1)
     if (ballIndex !== -1) {
-        // Стъпка 3: Използваме splice() за премахване на топката от масива
-        balls.splice(ballIndex, 1); // Премахва 1 елемент от масива на този индекс
+        balls.splice(ballIndex, 1); 
         console.log(`Топка с clientId ${clientId} беше премахната.`);
     } else {
         console.log(`Не е намерена топка с clientId ${clientId}.`);
     }
 
-    // Лог за проверка на актуализирания масив
     console.log("Актуализиран масив на топките:", balls);
 
-    // Добавяме новата топка с актуализираните координати
-    balls.push({ ...ball }); // Създаваме нов обект с обновените координати и го добавяме в масива
+    balls.push({ ...ball }); 
 
-    // Изпращаме новите данни към сървъра за актуализиране на позицията
     socket.send(JSON.stringify({
         clientId: clientId,
         x: Math.floor(ball.x),
@@ -109,7 +93,6 @@ document.addEventListener('keydown', (e) => {
         color: ball.color
     }));
 
-    // Логваме броя на топките в масива и айдитата на всяка топка
     console.log(`Броят на топките в масива: ${balls.length}`);
     balls.forEach(ball => {
         console.log(`Топка с clientId: ${ball.clientId}, позиция: (${ball.x}, ${ball.y})`);
@@ -118,13 +101,11 @@ document.addEventListener('keydown', (e) => {
     console.log(`Местите клиент: ${clientId}`);
     console.log(`Топката с clientId ${clientId} актуализирана на координати (${ball.x}, ${ball.y})`);
 
-    // Преизчертаваме топките на канваса
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawBalls();
 });
 
 
-// Свързване към WebSocket сървъра
 function connect() {
     const serverAddress = serverAddressInput.value;
     socket = new WebSocket(serverAddress);
@@ -144,17 +125,14 @@ function connect() {
             color: ballColor
         };
 
-        // Добавяне на новото топче локално
-        balls.push({ ...newBall, clientId: -1 }); // Временно clientId = -1, докато получим от сървъра
+        balls.push({ ...newBall, clientId: -1 }); 
 
         drawBalls();
 
-        // Изпращане на данните към сървъра
         socket.send(JSON.stringify(newBall));
     };
 
     socket.onmessage = (event) => {
-        // Обработваме полученото съобщение от сървъра
         let serverData;
         try {
             serverData = JSON.parse(event.data);
@@ -164,40 +142,31 @@ function connect() {
             return;
         }
 
-        // Проверка дали данните съдържат масив с топки (ballData)
         if (serverData.ballData && Array.isArray(serverData.ballData)) {
             console.log('Получени данни за топките:');
 
-            // Обработваме всяка топка от масива
             serverData.ballData.forEach(ball => {
-                // Търсим дали вече имаме топка с този clientId
                 const existingBall = balls.find(b => b.clientId === ball.clientId);
 
                 if (existingBall) {
-                    // Ако топката вече съществува, актуализираме данните й
                     existingBall.x = ball.x;
                     existingBall.y = ball.y;
                     existingBall.radius = ball.radius;
                     existingBall.color = ball.color;
                     console.log(`Актуализирана топка с clientId: ${ball.clientId}`);
                 } else {
-                    // Ако топката не съществува, добавяме нова топка
                     balls.push({ ...ball });
                     console.log(`Добавена нова топка с clientId: ${ball.clientId}`);
 
-                    // Пускане на звук за появата на нов клиент
                     newClientSound.currentTime = 0; 
                     newClientSound.play();
                 }
             });
         }
-        // Ако сървърът връща само clientId (например при първоначално свързване)
         else if (serverData.clientId !== undefined) {
-            // Задаваме clientId на клиента след първоначално свързване
             clientId = serverData.clientId;
             console.log(`Получено clientId от сървъра: ${clientId}`);
 
-            // Намираме топката на текущия клиент (ако е с clientId = -1) и я актуализираме
             const myBall = balls.find(ball => ball.clientId === -1);
             if (myBall) {
                 myBall.clientId = clientId;
@@ -205,7 +174,6 @@ function connect() {
             }
         }
 
-        // Преизчертаваме топките на канваса
         drawBalls();
     };
 
@@ -220,7 +188,6 @@ function connect() {
     };
 }
 
-// Изключване от WebSocket
 function disconnect() {
     if (socket && socket.readyState === WebSocket.OPEN) {
         socket.send(JSON.stringify({ clientId: clientId, disconnect: true }));

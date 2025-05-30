@@ -9,16 +9,14 @@ const PORT = 3000;
 const USERS_FILE = 'users.txt';
 
 app.use(bodyParser.json());
-app.use(express.static('game')); // За обслужване на статични файлове в директория game като `userpage.html`
+app.use(express.static('game')); 
 
-// Конфигуриране на сесиите
 app.use(session({
-    secret: 'your_secret_key', // Секретен ключ за криптиране на сесии
+    secret: 'your_secret_key', 
     resave: false, 
     saveUninitialized: true
 }));
 
-// Функция за четене на потребителите от файла
 const readUsers = async () => {
     try {
         const data = await fs.readFile(USERS_FILE, 'utf-8');
@@ -27,23 +25,20 @@ const readUsers = async () => {
             return { username, hashedPassword };
         });
     } catch (error) {
-        if (error.code === 'ENOENT') return []; // Ако файлът не съществува
+        if (error.code === 'ENOENT') return []; 
         throw error;
     }
 };
 
-// Функция за запис на нов потребител
 const saveUser = async (username, hashedPassword) => {
     const userLine = `${username}:${hashedPassword}\n`;
     await fs.appendFile(USERS_FILE, userLine);
 };
 
-// Зареждане на началната страница
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html');
 });
 
-// Регистрация на нов потребител
 app.post('/register', async (req, res) => {
     const { username, password } = req.body;
 
@@ -63,7 +58,6 @@ app.post('/register', async (req, res) => {
 });
 
 
-// Логване на съществуващ потребител
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
 
@@ -83,13 +77,11 @@ app.post('/login', async (req, res) => {
         return res.status(401).json({ error: 'Invalid password.' });
     }
 
-    // Записване на името на потребителя в сесията
     req.session.username = user.username;
 
     res.json({ message: 'Login successful.' });
 });
 
-// API за получаване на името на потребителя от сесията
 app.get('/api/session-user', (req, res) => {
     if (!req.session.username) {
         return res.status(401).json({ error: 'Unauthorized' });
@@ -97,20 +89,16 @@ app.get('/api/session-user', (req, res) => {
     res.json({ username: req.session.username });
 });
 
-// Логаут (унищожаване на сесията) 
 app.get('/logout', (req, res) => {
-    // Унищожаваме сесията
     req.session.destroy(err => {
         if (err) {
             return res.status(500).send('Could not log out');
         }
-        // Пренасочване към началната страница (index.html)
         res.redirect('/');
     });
 });
 
 
-// Стартиране на сървъра
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
