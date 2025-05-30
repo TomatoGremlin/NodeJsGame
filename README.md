@@ -34,7 +34,7 @@
 
 - ws
 
-***Инсталиране чрез командата:***
+***Инсталиране на модулите чрез командата:***
 
 ```npm install express express-session body-parser bcrypt ws```
 
