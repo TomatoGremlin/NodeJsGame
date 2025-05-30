@@ -8,6 +8,7 @@
 <body>
     <h1>Welcome</h1>
 
+    <!-- Форма за вход -->
     <div id="loginSection">
         <h2>Login</h2>
         <form id="loginForm">
@@ -18,6 +19,7 @@
         <button id="switchToRegister">Switch to Register</button>
     </div>
 
+    <!-- Форма за регистрация (скрита по подразбиране) -->
     <div id="registerSection" style="display: none;">
         <h2>Register</h2>
         <form id="registerForm">
@@ -31,6 +33,7 @@
 
     
     <script>
+        // Превключване между форми
         document.getElementById('switchToRegister').addEventListener('click', () => {
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('registerSection').style.display = 'block';
@@ -41,6 +44,7 @@
             document.getElementById('loginSection').style.display = 'block';
         });
 
+        // Обработване на логин форма
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const username = e.target.username.value;
@@ -54,6 +58,7 @@
                 });
 
                 if (res.ok) {
+                    // Пренасочване при успешен логин
                     window.location.href = '/userpage.html';
                 } else {
                     const data = await res.json();
@@ -65,6 +70,7 @@
             }
         });
 
+        // Обработване на регистрационна форма
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const username = e.target.username.value;
@@ -80,7 +86,7 @@
                 const data = await res.json();
                 if (res.ok) {
                     alert(data.message || 'Registration successful.');
-                    document.getElementById('switchToLogin').click(); 
+                    document.getElementById('switchToLogin').click(); // Превключване към логин форма
                 } else {
                     alert(data.error || 'Registration failed.');
                 }
