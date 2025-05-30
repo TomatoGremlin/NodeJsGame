@@ -6,14 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <script>
-        //Зареждане на потребителското име на потребителя
         async function loadUserData() {
             try {
                 const response = await fetch('/api/session-user');
                 if (response.ok) {
                     const data = await response.json();
                     document.getElementById('welcomeMessage').textContent = `Добре дошъл, ${data.username}!`;
-                    // Съхраняваме потребителското име в глобална променлива
                     window.username = data.username;
                 } else {
                     document.getElementById('welcomeMessage').textContent = 'Проблем при зареждане на профила. Моля, влезте отново.';
@@ -73,22 +71,17 @@
         
         <canvas id="gameCanvas"></canvas>
 
-        <!-- Аудио елементи-->
         <audio id="edgeCollisionSound" src="hit-sound.mp3" preload="auto"></audio>
         <audio id="newClientSound" src="new-client-sound.mp3" preload="auto"></audio>
 
     </div>
     <script>
-        // Излизане от профила - прекратява сесията на потребителя
         document.getElementById('logoutButton').addEventListener('click', async () => {
             try {
-                // Изпращане на заявка към бек-енда на /logout
                 const response = await fetch('/logout', { method: 'GET' });
                 console.log('Logout response:', response);
         
-                // Ако сървърът е унищожил сесията и е върнал 200 OK 
                 if (response.ok) {
-                    // Пренасочване към / (index.html) или директно към /login
                     window.location.href = '/'; 
                 } else {
                     alert('Неуспешно излизане от профила. Опитай пак.');
